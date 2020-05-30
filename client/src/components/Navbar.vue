@@ -37,11 +37,13 @@
 const userData = 'userData';
 export default {
   name: 'navbar',
-  data: () => ({
-    userToken: JSON.parse(
-      sessionStorage.getItem(userData) || localStorage.getItem(userData)
-    ),
-  }),
+  data() {
+    return {
+      userToken: JSON.parse(
+        sessionStorage.getItem(userData) || localStorage.getItem(userData)
+      ),
+    };
+  },
   methods: {
     logoutMe() {
       localStorage.removeItem(userData);
@@ -54,9 +56,6 @@ export default {
     cekUserToken() {
       !this.userToken.token && this.redirectNotLogin();
     },
-  },
-  mounted() {
-    this.cekUserToken();
   },
 };
 </script>

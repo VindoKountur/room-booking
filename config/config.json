@@ -1,6 +1,6 @@
 {
   "development": {
-    "username": "root",
+    "username": "postgres",
     "password": "root",
     "database": "h8-room-booking",
     "host": "127.0.0.1",

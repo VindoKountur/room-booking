@@ -1,5 +1,6 @@
 <template>
   <div class="home">
+    <Navbar />
     <div class="w-full text-center mt-16">
       <h2 class="text-xl font-bold">Search Rooms</h2>
       <form @submit.prevent="submitSearch" class="text-left p-4 bg-gray-300">
@@ -75,6 +76,7 @@
 
 <script>
 import Modal from '../components/Modal';
+import Navbar from '../components/Navbar';
 
 import api from '../api';
 
@@ -82,6 +84,7 @@ export default {
   name: 'Home',
   components: {
     Modal,
+    Navbar,
   },
   data() {
     return {

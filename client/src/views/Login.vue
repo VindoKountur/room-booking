@@ -63,13 +63,16 @@ export default {
         this.form.remember
           ? localStorage.setItem('userData', JSON.stringify(userData))
           : sessionStorage.setItem('userData', JSON.stringify(userData));
-        this.$router.push('/home');
+        if (userData.role === 'admin') {
+          this.$router.push('/rooms');
+        } else {
+          this.$router.push('/home');
+        }
       } catch (error) {
         console.log(error.response.data);
       }
     },
     cekUserToken() {
-      console.log('tes');
       const userData = JSON.parse(
         localStorage.getItem('userData') || sessionStorage.getItem('userData')
       );
@@ -79,13 +82,10 @@ export default {
         userId: 'noid',
       };
       const useData = userData ? userData : defaultUserData;
-      console.log(useData);
-      if (userData.token !== 'notoken') {
-        userData.role === 'admin'
+      if (useData.token !== 'notoken') {
+        useData.role === 'admin'
           ? this.$router.push('/rooms')
           : this.$router.push('/home');
-      } else {
-        this.$router.push('/login');
       }
     },
   },

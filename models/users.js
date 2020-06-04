@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       hooks: {
         beforeCreate: (user) => {
           return bcrypt.hash(user.password, 10).then((hashed) => {
+            console.log(hashed);
             user.password = hashed;
           });
         },

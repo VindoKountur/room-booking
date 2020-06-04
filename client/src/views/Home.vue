@@ -7,21 +7,11 @@
         <div class="grid grid-cols-2 gap-4">
           <div class="form-row">
             <label for="tanggal" class="sub-title">Date</label>
-            <input
-              v-model="searchForm.date"
-              type="date"
-              id="tanggal"
-              class="input-value"
-            />
+            <input v-model="searchForm.date" type="date" id="tanggal" class="input-value" />
           </div>
           <div class="form-row">
             <label for="kapasitas" class="sub-title">Capacity</label>
-            <input
-              v-model="searchForm.capacity"
-              type="number"
-              id="kapasitas"
-              class="input-value"
-            />
+            <input v-model="searchForm.capacity" type="number" id="kapasitas" class="input-value" />
           </div>
         </div>
         <!-- DAftar Asset -->
@@ -31,12 +21,7 @@
             <label class="ml-1">{{ asset.name }}</label>
           </div>
         </div>
-        <button
-          type="submit"
-          class="bg-blue-500 px-3 py-1 text-white rounded ml-3"
-        >
-          Search
-        </button>
+        <button type="submit" class="bg-blue-500 px-3 py-1 text-white rounded ml-3">Search</button>
       </form>
     </div>
     <!-- Daftar Room -->
@@ -50,22 +35,13 @@
             <p class="card-text">{{ room.description }}</p>
           </div>
           <div class="card-footer">
-            <button
-              class="p-2 bg-blue-400 rounded text-white"
-              @click="settingModal(room.id)"
-            >
-              Detail
-            </button>
+            <button class="p-2 bg-blue-400 rounded text-white" @click="settingModal(room.id)">Detail</button>
             <button
               @click="bookNow(room.id)"
               v-show="!bookedRoomId.includes(room.id)"
               class="p-2 bg-blue-700 rounded text-white ml-2"
-            >
-              Book Now
-            </button>
-            <p v-show="bookedRoomId.includes(room.id)">
-              {{ getBookedUsername(room.id) }}
-            </p>
+            >Book Now</button>
+            <p v-show="bookedRoomId.includes(room.id)">{{ getBookedUsername(room.id) }}</p>
           </div>
         </div>
       </div>
@@ -75,16 +51,16 @@
 </template>
 
 <script>
-import Modal from '../components/Modal';
-import Navbar from '../components/Navbar';
+import Modal from "../components/Modal";
+import Navbar from "../components/Navbar";
 
-import api from '../api';
+import api from "../api";
 
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
     Modal,
-    Navbar,
+    Navbar
   },
   data() {
     return {
@@ -93,22 +69,22 @@ export default {
       showModal: false,
       showRoom: {},
       searchForm: {
-        date: '',
-        capacity: '',
+        date: "",
+        capacity: ""
       },
       bookedRoomOnDate: [],
       bookedRoomId: [],
       userData: JSON.parse(
-        sessionStorage.getItem('userData') || localStorage.getItem('userData')
-      ),
+        sessionStorage.getItem("userData") || localStorage.getItem("userData")
+      )
     };
   },
   methods: {
     async getAssets() {
       const { data } = await api.getAssets();
-      const newData = data.map((asset) => ({
+      const newData = data.map(asset => ({
         check: false,
-        name: asset,
+        name: asset
       }));
       this.assets = newData;
     },
@@ -129,31 +105,29 @@ export default {
     },
     async getBookedRoom(query) {
       const { data } = await api.getBookings(query);
-      const bookedRoom = data.map((room) => ({
+      const bookedRoom = data.map(room => ({
         roomId: room.Room.id,
-        user: room.User.username,
+        user: room.User.username
       }));
-      const bookedRoomId = data.map((room) => room.Room.id);
+      const bookedRoomId = data.map(room => room.Room.id);
       this.bookedRoomId = bookedRoomId;
       this.bookedRoomOnDate = bookedRoom;
     },
     submitSearch() {
-      const checkedAssets = this.assets.filter((asset) => asset.check === true);
-      const searchAssets = checkedAssets.map((asset) => asset.name);
+      const checkedAssets = this.assets.filter(asset => asset.check === true);
+      const searchAssets = checkedAssets.map(asset => asset.name);
       const queryRoom = {
         capacity: +this.searchForm.capacity,
-        searchAssets,
+        searchAssets
       };
       const queryBooking = {
-        date: this.searchForm.date,
+        date: this.searchForm.date
       };
       this.getRooms(queryRoom);
       this.getBookedRoom(queryBooking);
     },
     getBookedUsername(roomId) {
-      const [rm] = this.bookedRoomOnDate.filter(
-        (room) => room.roomId === roomId
-      );
+      const [rm] = this.bookedRoomOnDate.filter(room => room.roomId === roomId);
       if (rm) {
         const a = `Booked by: ${rm.user}`;
         return a;
@@ -163,20 +137,35 @@ export default {
       const data = {
         userId: this.userData.userId,
         dateAndTime: this.searchForm.date,
-        roomId,
+        roomId
       };
       const book = await api.bookNow(data);
       if (book) {
-        console.log('booked');
+        console.log("booked");
       } else {
-        console.log('fail');
+        console.log("fail");
       }
     },
+    getDueDate() {
+      function setValue(num) {
+        if (num < 10) return `0${num}`;
+        return num;
+      }
+      const date = new Date();
+      const due = {
+        year: date.getFullYear(),
+        month: setValue(date.getMonth() + 1),
+        day: setValue(date.getDate())
+      };
+      const dueDate = `${due.year}-${due.month}-${due.day}`;
+      console.log(dueDate);
+      this.getAssets();
+      this.searchForm.date = dueDate;
+    }
   },
   mounted() {
-    this.getAssets();
-    // this.getRooms();
-  },
+    this.getDueDate();
+  }
 };
 </script>
 

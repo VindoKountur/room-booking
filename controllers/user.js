@@ -5,6 +5,14 @@ const models = require('../models');
 let blacklist = require('../src/constant/blacklist');
 const saltRound = 10;
 
+async function verifyPassword(password, hashPassword) {
+  return bcrypt.compare(password, hashPassword, (err, result) => {
+    if (err) throw new Error('error compare');
+    console.log(result);
+    return result;
+  });
+}
+
 module.exports = {
   async login(req, res, next) {
     try {
@@ -19,26 +27,28 @@ module.exports = {
         throw new Error('Username not found');
       } else {
         const { password } = req.body;
-        const result =
-          (await bcrypt.compare(password, user.password)) ||
-          password === user.password;
-        if (!result) {
-          res.statusCode = 400;
-          throw new Error('wrong password');
-        }
-        jwt.sign(
-          { user },
-          process.env.JWT_SECRET_KEY,
-          { expiresIn: '12h' },
-          (err, token) => {
-            res.json({
-              message: 'berhasil login',
-              token,
-              role: user.role,
-              userId: user.id,
-            });
+        bcrypt.compare(password, user.password, (err, result) => {
+          if (err) throw new Error('error compare');
+          const seed = password === user.password;
+          if (!result && !seed) {
+            res.statusCode = 400;
+            throw new Error('wrong password');
+          } else {
+            jwt.sign(
+              { user },
+              process.env.JWT_SECRET_KEY,
+              { expiresIn: '12h' },
+              (err, token) => {
+                res.json({
+                  message: 'berhasil login',
+                  token,
+                  role: user.role,
+                  userId: user.id,
+                });
+              }
+            );
           }
-        );
+        });
       }
     } catch (error) {
       next(error);
@@ -54,10 +64,9 @@ module.exports = {
   async add(req, res, next) {
     try {
       const { username, password, role } = req.body;
-      const hash = await bcrypt.hash(password, saltRound);
       const newUser = {
         username,
-        password: hash,
+        password,
         role,
       };
       const user = await models.Users.create(newUser);

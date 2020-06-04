@@ -39,7 +39,9 @@ module.exports = {
         where: {},
       };
       if (capacity) {
-        condition.where.capacity = capacity;
+        condition.where.capacity = {
+          [Op.lte]: capacity,
+        };
       }
       if (assets) {
         const parseAssets = JSON.parse(assets);
